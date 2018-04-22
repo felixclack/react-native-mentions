@@ -5,6 +5,7 @@ import {
   Animated,
   TextInput,
   FlatList,
+  ViewPropTypes
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -128,6 +129,7 @@ export default class MentionsTextInput extends Component {
             data={this.props.suggestionsData}
             keyExtractor={this.props.keyExtractor}
             renderItem={(rowData) => { return this.props.renderSuggestionsRow(rowData, this.stopTracking.bind(this)) }}
+            style={this.props.suggestionsStyle}
           />
         </Animated.View>
       </View>
@@ -137,7 +139,7 @@ export default class MentionsTextInput extends Component {
 
 MentionsTextInput.propTypes = {
   textInputStyle: TextInput.propTypes.style,
-  suggestionsPanelStyle: View.propTypes.style,
+  suggestionsPanelStyle: ViewPropTypes.style,
   loadingComponent: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.element,
