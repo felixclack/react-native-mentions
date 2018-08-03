@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import {
   Text,
   View,
@@ -6,20 +6,19 @@ import {
   TextInput,
   FlatList,
   ViewPropTypes
-} from 'react-native';
-import PropTypes from 'prop-types';
+} from 'react-native'
+import PropTypes from 'prop-types'
 
 export default class MentionsTextInput extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
-      textInputHeight: "",
+      textInputHeight: '',
       isTrackingStrated: false,
-      suggestionRowHeight: new Animated.Value(0),
-
+      suggestionRowHeight: new Animated.Value(0)
     }
-    this.isTrackingStrated = false;
-    this.previousChar = " ";
+    this.isTrackingStrated = false
+    this.previousChar = ' '
   }
 
   componentWillMount() {
@@ -30,25 +29,32 @@ export default class MentionsTextInput extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!nextProps.value) {
-      this.resetTextbox();
-    } else if (this.isTrackingStrated && !nextProps.horizontal && nextProps.suggestionsData.length !== 0) {
-      const numOfRows = nextProps.MaxVisibleRowCount >= nextProps.suggestionsData.length ? nextProps.suggestionsData.length : nextProps.MaxVisibleRowCount;
-      const height = numOfRows * nextProps.suggestionRowHeight;
-      this.openSuggestionsPanel(height);
+      this.resetTextbox()
+    } else if (
+      this.isTrackingStrated &&
+      !nextProps.horizontal &&
+      nextProps.suggestionsData.length !== 0
+    ) {
+      const numOfRows =
+        nextProps.MaxVisibleRowCount >= nextProps.suggestionsData.length
+          ? nextProps.suggestionsData.length
+          : nextProps.MaxVisibleRowCount
+      const height = numOfRows * nextProps.suggestionRowHeight
+      this.openSuggestionsPanel(height)
     }
   }
 
   startTracking() {
-    this.isTrackingStrated = true;
-    this.openSuggestionsPanel();
+    this.isTrackingStrated = true
+    this.openSuggestionsPanel()
     this.setState({
       isTrackingStrated: true
     })
   }
 
   stopTracking() {
-    this.isTrackingStrated = false;
-    this.closeSuggestionsPanel();
+    this.isTrackingStrated = false
+    this.closeSuggestionsPanel()
     this.setState({
       isTrackingStrated: false
     })
@@ -57,50 +63,61 @@ export default class MentionsTextInput extends Component {
   openSuggestionsPanel(height) {
     Animated.timing(this.state.suggestionRowHeight, {
       toValue: height ? height : this.props.suggestionRowHeight,
-      duration: 100,
-    }).start();
+      duration: 100
+    }).start()
   }
 
   closeSuggestionsPanel() {
     Animated.timing(this.state.suggestionRowHeight, {
       toValue: 0,
-      duration: 100,
-    }).start();
+      duration: 100
+    }).start()
   }
 
   updateSuggestions(lastKeyword) {
-    this.props.triggerCallback(lastKeyword);
+    this.props.triggerCallback(lastKeyword)
   }
 
   identifyKeyword(val) {
     if (this.isTrackingStrated) {
-      const boundary = this.props.triggerLocation === 'new-word-only' ? 'B' : '';
-      const pattern = new RegExp(`\\${boundary}${this.props.trigger}[a-z0-9_-]+|\\${boundary}${this.props.trigger}`, `gi`);
-      const keywordArray = val.match(pattern);
+      const boundary = this.props.triggerLocation === 'new-word-only' ? 'B' : ''
+      const pattern = new RegExp(
+        `\\${boundary}${this.props.trigger}[a-z0-9_-]+|\\${boundary}${
+          this.props.trigger
+        }`,
+        `gi`
+      )
+      const keywordArray = val.match(pattern)
       if (keywordArray && !!keywordArray.length) {
-        const lastKeyword = keywordArray[keywordArray.length - 1];
-        this.updateSuggestions(lastKeyword);
+        const lastKeyword = keywordArray[keywordArray.length - 1]
+        this.updateSuggestions(lastKeyword)
       }
     }
   }
 
   onChangeText(val) {
-    this.props.onChangeText(val); // pass changed text back
-    const lastChar = val.substr(val.length - 1);
-    const wordBoundry = (this.props.triggerLocation === 'new-word-only') ? this.previousChar.trim().length === 0 : true;
+    this.props.onChangeText(val) // pass changed text back
+    const lastChar = val.substr(val.length - 1)
+    const wordBoundry =
+      this.props.triggerLocation === 'new-word-only'
+        ? this.previousChar.trim().length === 0
+        : true
     if (lastChar === this.props.trigger && wordBoundry) {
-      this.startTracking();
-    } else if (lastChar === ' ' && this.state.isTrackingStrated || val === "") {
-      this.stopTracking();
+      this.startTracking()
+    } else if (
+      (lastChar === ' ' && this.state.isTrackingStrated) ||
+      val === ''
+    ) {
+      this.stopTracking()
     }
-    this.previousChar = lastChar;
-    this.identifyKeyword(val);
+    this.previousChar = lastChar
+    this.identifyKeyword(val)
   }
 
   resetTextbox() {
-    this.previousChar = " ";
-    this.stopTracking();
-    this.setState({ textInputHeight: this.props.textInputMinHeight });
+    this.previousChar = ' '
+    this.stopTracking()
+    this.setState({ textInputHeight: this.props.textInputMinHeight })
   }
 
   render() {
@@ -108,27 +125,53 @@ export default class MentionsTextInput extends Component {
       <View>
         <TextInput
           {...this.props}
-          onContentSizeChange={(event) => {
+          onContentSizeChange={event => {
             this.setState({
-              textInputHeight: this.props.textInputMinHeight >= event.nativeEvent.contentSize.height ? this.props.textInputMinHeight : event.nativeEvent.contentSize.height + 10,
-            });
+              textInputHeight:
+                this.props.textInputMinHeight >=
+                event.nativeEvent.contentSize.height
+                  ? this.props.textInputMinHeight
+                  : event.nativeEvent.contentSize.height + 10
+            })
           }}
-          ref={component => this._textInput = component}
+          ref={component => (this._textInput = component)}
           onChangeText={this.onChangeText.bind(this)}
           multiline={true}
           value={this.props.value}
-          style={[{ ...this.props.textInputStyle }, { height: Math.min(this.props.textInputMaxHeight, this.state.textInputHeight) }]}
-          placeholder={this.props.placeholder ? this.props.placeholder : 'Write a comment...'}
+          style={[
+            { ...this.props.textInputStyle },
+            {
+              height: Math.min(
+                this.props.textInputMaxHeight,
+                this.state.textInputHeight
+              )
+            }
+          ]}
+          placeholder={
+            this.props.placeholder
+              ? this.props.placeholder
+              : 'Write a comment...'
+          }
         />
-        <Animated.View style={[{ ...this.props.suggestionsPanelStyle }, { height: this.state.suggestionRowHeight }]}>
+        <Animated.View
+          style={[
+            { ...this.props.suggestionsPanelStyle },
+            { height: this.state.suggestionRowHeight }
+          ]}
+        >
           <FlatList
-            keyboardShouldPersistTaps={"always"}
+            keyboardShouldPersistTaps={'always'}
             horizontal={this.props.horizontal}
             ListEmptyComponent={this.props.loadingComponent}
             enableEmptySections={true}
             data={this.props.suggestionsData}
             keyExtractor={this.props.keyExtractor}
-            renderItem={(rowData) => { return this.props.renderSuggestionsRow(rowData, this.stopTracking.bind(this)) }}
+            renderItem={rowData => {
+              return this.props.renderSuggestionsRow(
+                rowData,
+                this.stopTracking.bind(this)
+              )
+            }}
             style={this.props.suggestionsStyle}
           />
         </Animated.View>
@@ -140,10 +183,7 @@ export default class MentionsTextInput extends Component {
 MentionsTextInput.propTypes = {
   textInputStyle: TextInput.propTypes.style,
   suggestionsPanelStyle: ViewPropTypes.style,
-  loadingComponent: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.element,
-  ]),
+  loadingComponent: PropTypes.oneOfType([PropTypes.func, PropTypes.element]),
   textInputMinHeight: PropTypes.number,
   textInputMaxHeight: PropTypes.number,
   trigger: PropTypes.string.isRequired,
@@ -151,22 +191,20 @@ MentionsTextInput.propTypes = {
   value: PropTypes.string.isRequired,
   onChangeText: PropTypes.func.isRequired,
   triggerCallback: PropTypes.func.isRequired,
-  renderSuggestionsRow: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.element,
-  ]).isRequired,
+  renderSuggestionsRow: PropTypes.oneOfType([PropTypes.func, PropTypes.element])
+    .isRequired,
   suggestionsData: PropTypes.array.isRequired,
   keyExtractor: PropTypes.func.isRequired,
   horizontal: PropTypes.bool,
   suggestionRowHeight: PropTypes.number.isRequired,
   MaxVisibleRowCount: function(props, propName, componentName) {
-    if(!props.horizontal && !props.MaxVisibleRowCount) {
+    if (!props.horizontal && !props.MaxVisibleRowCount) {
       return new Error(
         `Prop 'MaxVisibleRowCount' is required if horizontal is set to false.`
-      );
+      )
     }
   }
-};
+}
 
 MentionsTextInput.defaultProps = {
   textInputStyle: { borderColor: '#ebebeb', borderWidth: 1, fontSize: 15 },
@@ -174,5 +212,5 @@ MentionsTextInput.defaultProps = {
   loadingComponent: () => <Text>Loading...</Text>,
   textInputMinHeight: 30,
   textInputMaxHeight: 80,
-  horizontal: true,
+  horizontal: true
 }
